@@ -1,11 +1,68 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '@/store/authStore';
+import { Button } from '@/components/ui/button';
 
-const Index = () => {
+const Index: React.FC = () => {
+  const { isAuthenticated, user } = useAuthStore();
+  const navigate = useNavigate();
+
+  React.useEffect(() => {
+    if (isAuthenticated) {
+      // If user is authenticated but on first login, redirect to password change
+      if (user?.isFirstLogin) {
+        navigate('/change-password');
+        return;
+      }
+      
+      // Otherwise redirect to appropriate dashboard based on role
+      const redirectPath = user?.role === 'admin' 
+        ? '/admin' 
+        : user?.role === 'counselor' 
+          ? '/counselor' 
+          : '/approver';
+      
+      navigate(redirectPath);
+    }
+  }, [isAuthenticated, user, navigate]);
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-blue-50 to-white p-4">
+      <div className="max-w-md text-center mx-auto">
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-primary">Edu-Loan Portal</h1>
+          <p className="text-muted-foreground mt-2">
+            Educational Loan Management System
+          </p>
+        </div>
+        
+        <div className="data-card p-6 mb-6">
+          <h2 className="text-lg font-semibold mb-4">Welcome to the Edu-Loan Portal</h2>
+          <p className="text-muted-foreground mb-4">
+            A comprehensive system for managing educational loans, streamlining the process from application to approval.
+          </p>
+          <Button 
+            className="w-full" 
+            onClick={() => navigate('/login')}
+          >
+            Sign In
+          </Button>
+        </div>
+        
+        <div className="grid grid-cols-3 gap-4">
+          <div className="data-card p-4">
+            <h3 className="font-medium mb-2">Admin</h3>
+            <p className="text-xs text-muted-foreground">User management & oversight</p>
+          </div>
+          <div className="data-card p-4">
+            <h3 className="font-medium mb-2">Counselor</h3>
+            <p className="text-xs text-muted-foreground">Application creation</p>
+          </div>
+          <div className="data-card p-4">
+            <h3 className="font-medium mb-2">Approver</h3>
+            <p className="text-xs text-muted-foreground">Loan review & decisions</p>
+          </div>
+        </div>
       </div>
     </div>
   );
