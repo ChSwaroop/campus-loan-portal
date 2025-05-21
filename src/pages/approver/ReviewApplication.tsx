@@ -23,7 +23,7 @@ import {
 } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
-import { AlertTriangle, ArrowLeft, CheckCircle, Info, XCircle } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, CheckCircle, Clock, Info, XCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const ReviewApplication: React.FC = () => {

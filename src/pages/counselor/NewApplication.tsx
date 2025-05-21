@@ -78,8 +78,16 @@ const NewApplication: React.FC = () => {
     }
     
     try {
+      // Make sure all required properties are passed to createApplication
+      // Convert the date object to a string format expected by the API
       await createApplication({
-        ...data,
+        studentName: data.studentName,
+        fatherName: data.fatherName,
+        motherName: data.motherName,
+        dateOfBirth: format(data.dateOfBirth, 'yyyy-MM-dd'),
+        aadharNumber: data.aadharNumber,
+        panCard: data.panCard,
+        cibilScore: data.cibilScore,
         counselorId: user.id,
       });
       
@@ -88,7 +96,7 @@ const NewApplication: React.FC = () => {
         description: "The loan application has been submitted successfully."
       });
       
-      navigate('/counselor/applications');
+      navigate('/counselor');
     } catch (error) {
       toast({
         title: "Error",
