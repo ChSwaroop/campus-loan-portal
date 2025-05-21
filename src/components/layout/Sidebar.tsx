@@ -16,7 +16,15 @@ const Sidebar: React.FC = () => {
   const location = useLocation();
   const { user } = useAuthStore();
   
-  const isActive = (path: string) => location.pathname.startsWith(path);
+  // Modified isActive to check for exact path match instead of just startsWith
+  const isActive = (path: string) => {
+    if (path.endsWith('/')) {
+      // For root paths like /admin/, /counselor/, /approver/
+      return location.pathname === path || location.pathname === path.slice(0, -1);
+    }
+    // For other paths, check exact match
+    return location.pathname === path;
+  };
   
   // Define navigation items based on user role
   const getNavItems = () => {

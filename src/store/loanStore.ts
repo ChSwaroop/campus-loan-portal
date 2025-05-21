@@ -100,9 +100,13 @@ export const useLoanStore = create<LoanState>((set) => ({
       // This is a mock implementation - in a real app, this would call your API
       await new Promise(resolve => setTimeout(resolve, 1000));
       
+      // If status is set to pending, also update the createdAt to show it's been resubmitted
+      const updateData = data.status === 'pending' ? 
+        { ...data, createdAt: new Date().toISOString() } : data;
+      
       set(state => ({
         applications: state.applications.map(app => 
-          app.id === id ? { ...app, ...data } : app
+          app.id === id ? { ...app, ...updateData } : app
         ),
         isLoading: false
       }));

@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useLoanStore } from '@/store/loanStore';
 import { 
@@ -7,26 +7,57 @@ import {
   CardContent, 
   CardDescription, 
   CardHeader, 
-  CardTitle 
+  CardTitle,
+  CardFooter 
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useToast } from '@/components/ui/use-toast';
 import { 
   ArrowLeft, 
   Clock, 
   CheckCircle, 
   XCircle,
-  AlertTriangle 
+  AlertTriangle,
+  Edit,
+  Save
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const ApplicationDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { applications } = useLoanStore();
+  const { applications, updateApplication } = useLoanStore();
+  const { toast } = useToast();
   
   const application = applications.find(app => app.id === id);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedData, setEditedData] = useState({
+    studentName: '',
+    fatherName: '',
+    motherName: '',
+    dateOfBirth: '',
+    aadharNumber: '',
+    panCard: '',
+    cibilScore: 0
+  });
+  
+  React.useEffect(() => {
+    if (application) {
+      setEditedData({
+        studentName: application.studentName,
+        fatherName: application.fatherName,
+        motherName: application.motherName,
+        dateOfBirth: application.dateOfBirth,
+        aadharNumber: application.aadharNumber,
+        panCard: application.panCard,
+        cibilScore: application.cibilScore
+      });
+    }
+  }, [application]);
   
   if (!application) {
     return (
@@ -76,6 +107,41 @@ const ApplicationDetail: React.FC = () => {
         return null;
     }
   };
+
+  const handleEditToggle = () => {
+    setIsEditing(!isEditing);
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setEditedData({
+      ...editedData,
+      [name]: name === 'cibilScore' ? Number(value) : value
+    });
+  };
+
+  const handleSubmit = async () => {
+    try {
+      await updateApplication(id!, {
+        ...editedData,
+        status: 'pending', // Reset status to pending for re-review
+        rejectionReason: undefined // Clear rejection reason
+      });
+      
+      toast({
+        title: "Application Updated",
+        description: "Application has been updated and resubmitted for approval.",
+      });
+      
+      setIsEditing(false);
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to update application. Please try again.",
+      });
+    }
+  };
   
   return (
     <div className="space-y-6">
@@ -99,12 +165,31 @@ const ApplicationDetail: React.FC = () => {
           </span>
         </div>
         
-        <Button 
-          variant="outline"
-          onClick={() => navigate('/counselor/applications')}
-        >
-          Back to Applications
-        </Button>
+        <div className="flex gap-2">
+          {application.status === 'rejected' && !isEditing && (
+            <Button 
+              variant="outline"
+              onClick={handleEditToggle}
+            >
+              <Edit className="h-4 w-4 mr-2" />
+              Edit & Resubmit
+            </Button>
+          )}
+          {isEditing && (
+            <Button 
+              onClick={handleSubmit}
+            >
+              <Save className="h-4 w-4 mr-2" />
+              Save & Resubmit
+            </Button>
+          )}
+          <Button 
+            variant="outline"
+            onClick={() => navigate('/counselor/applications')}
+          >
+            Back to Applications
+          </Button>
+        </div>
       </div>
       
       <div className="grid gap-6 md:grid-cols-2">
@@ -114,32 +199,105 @@ const ApplicationDetail: React.FC = () => {
             <CardDescription>Personal details of the applicant</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-y-4 gap-x-6 sm:grid-cols-2">
-              <div>
-                <h3 className="text-sm font-medium text-muted-foreground">Student Name</h3>
-                <p className="font-semibold">{application.studentName}</p>
+            {isEditing ? (
+              <div className="space-y-4">
+                <div className="grid gap-y-4 gap-x-6 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="studentName">Student Name</Label>
+                    <Input 
+                      id="studentName" 
+                      name="studentName" 
+                      value={editedData.studentName} 
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="dateOfBirth">Date of Birth</Label>
+                    <Input 
+                      id="dateOfBirth" 
+                      name="dateOfBirth" 
+                      value={editedData.dateOfBirth} 
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="fatherName">Father's Name</Label>
+                    <Input 
+                      id="fatherName" 
+                      name="fatherName" 
+                      value={editedData.fatherName} 
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="motherName">Mother's Name</Label>
+                    <Input 
+                      id="motherName" 
+                      name="motherName" 
+                      value={editedData.motherName} 
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="aadharNumber">Aadhar Number</Label>
+                    <Input 
+                      id="aadharNumber" 
+                      name="aadharNumber" 
+                      value={editedData.aadharNumber} 
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="panCard">PAN Card</Label>
+                    <Input 
+                      id="panCard" 
+                      name="panCard" 
+                      value={editedData.panCard} 
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="cibilScore">CIBIL Score</Label>
+                    <Input 
+                      id="cibilScore" 
+                      name="cibilScore" 
+                      type="number" 
+                      min="300" 
+                      max="900" 
+                      value={editedData.cibilScore} 
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                </div>
               </div>
-              <div>
-                <h3 className="text-sm font-medium text-muted-foreground">Date of Birth</h3>
-                <p className="font-semibold">{application.dateOfBirth}</p>
+            ) : (
+              <div className="grid gap-y-4 gap-x-6 sm:grid-cols-2">
+                <div>
+                  <h3 className="text-sm font-medium text-muted-foreground">Student Name</h3>
+                  <p className="font-semibold">{application.studentName}</p>
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-muted-foreground">Date of Birth</h3>
+                  <p className="font-semibold">{application.dateOfBirth}</p>
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-muted-foreground">Father's Name</h3>
+                  <p className="font-semibold">{application.fatherName}</p>
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-muted-foreground">Mother's Name</h3>
+                  <p className="font-semibold">{application.motherName}</p>
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-muted-foreground">Aadhar Number</h3>
+                  <p className="font-semibold">{application.aadharNumber}</p>
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-muted-foreground">PAN Card</h3>
+                  <p className="font-semibold">{application.panCard}</p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-sm font-medium text-muted-foreground">Father's Name</h3>
-                <p className="font-semibold">{application.fatherName}</p>
-              </div>
-              <div>
-                <h3 className="text-sm font-medium text-muted-foreground">Mother's Name</h3>
-                <p className="font-semibold">{application.motherName}</p>
-              </div>
-              <div>
-                <h3 className="text-sm font-medium text-muted-foreground">Aadhar Number</h3>
-                <p className="font-semibold">{application.aadharNumber}</p>
-              </div>
-              <div>
-                <h3 className="text-sm font-medium text-muted-foreground">PAN Card</h3>
-                <p className="font-semibold">{application.panCard}</p>
-              </div>
-            </div>
+            )}
           </CardContent>
         </Card>
         
@@ -151,7 +309,20 @@ const ApplicationDetail: React.FC = () => {
           <CardContent>
             <div>
               <h3 className="text-sm font-medium text-muted-foreground">CIBIL Score</h3>
-              <p className="text-2xl font-bold mt-1">{application.cibilScore}</p>
+              {isEditing ? (
+                <Input 
+                  id="cibilScore" 
+                  name="cibilScore" 
+                  type="number" 
+                  min="300" 
+                  max="900" 
+                  className="mt-1"
+                  value={editedData.cibilScore} 
+                  onChange={handleInputChange}
+                />
+              ) : (
+                <p className="text-2xl font-bold mt-1">{application.cibilScore}</p>
+              )}
               
               <Separator className="my-4" />
               
@@ -166,7 +337,7 @@ const ApplicationDetail: React.FC = () => {
                     ></div>
                     <div 
                       className="h-3 w-3 bg-white border-2 border-primary rounded-full -mt-2.5"
-                      style={{ marginLeft: `${((application.cibilScore - 300) / 600) * 100}%` }}
+                      style={{ marginLeft: `${((isEditing ? editedData.cibilScore : application.cibilScore) - 300) / 600 * 100}%` }}
                     ></div>
                   </div>
                   <span className="text-muted-foreground text-sm ml-1">900</span>
@@ -177,7 +348,7 @@ const ApplicationDetail: React.FC = () => {
         </Card>
       </div>
       
-      {application.status === 'rejected' && application.rejectionReason && (
+      {application.status === 'rejected' && application.rejectionReason && !isEditing && (
         <Card className={cn("border-red-200 bg-red-50")}>
           <CardHeader>
             <CardTitle className="flex items-center text-red-800">
@@ -196,6 +367,11 @@ const ApplicationDetail: React.FC = () => {
               </p>
             </div>
           </CardContent>
+          <CardFooter className="bg-white rounded-b-lg border-t border-red-100">
+            <div className="text-sm text-red-700">
+              You can edit and resubmit this application for reconsideration.
+            </div>
+          </CardFooter>
         </Card>
       )}
     </div>
