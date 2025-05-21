@@ -1,5 +1,6 @@
+
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from '@tanstack/react-router';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/store/authStore';
 import { 
@@ -12,25 +13,7 @@ import {
 } from 'lucide-react';
 
 const Sidebar: React.FC = () => {
-  const location = useLocation();
   const { user } = useAuthStore();
-  
-  // Fixed isActive to correctly match the current path
-  const isActive = (path: string) => {
-    const currentPath = location.pathname;
-    
-    // Exact match for dashboard routes
-    if (path.endsWith('/') && (currentPath === path || currentPath === path.slice(0, -1))) {
-      return true;
-    }
-    
-    // Exact match for specific routes
-    if (currentPath === path) {
-      return true;
-    }
-    
-    return false;
-  };
   
   // Define navigation items based on user role
   const getNavItems = () => {
@@ -72,18 +55,21 @@ const Sidebar: React.FC = () => {
             <Link
               key={item.path}
               to={item.path}
+              activeProps={{
+                className: "bg-sidebar-primary text-sidebar-primary-foreground"
+              }}
+              inactiveProps={{
+                className: "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+              }}
               className={cn(
-                "flex items-center px-3 py-2 text-sm rounded-md group transition-colors",
-                isActive(item.path)
-                  ? "bg-sidebar-primary text-sidebar-primary-foreground"
-                  : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                "flex items-center px-3 py-2 text-sm rounded-md group transition-colors"
               )}
             >
               <span className="mr-3">{item.icon}</span>
               <span className="flex-1">{item.label}</span>
               <ChevronRight size={16} className={cn(
                 "opacity-0 transition-opacity",
-                isActive(item.path) ? "opacity-100" : "group-hover:opacity-50"
+                "group-hover:opacity-50"
               )} />
             </Link>
           ))}

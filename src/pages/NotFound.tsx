@@ -1,21 +1,19 @@
 
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useAuthStore } from "@/store/authStore";
 import { Button } from "@/components/ui/button";
 import { Home, ArrowLeft } from "lucide-react";
 
 const NotFound = () => {
-  const location = useLocation();
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuthStore();
 
   useEffect(() => {
     console.error(
-      "404 Error: User attempted to access non-existent route:",
-      location.pathname
+      "404 Error: User attempted to access non-existent route"
     );
-  }, [location.pathname]);
+  }, []);
 
   const getDashboardPath = () => {
     if (!isAuthenticated) return "/";
@@ -38,7 +36,7 @@ const NotFound = () => {
         <div className="space-y-2">
           <Button 
             className="w-full" 
-            onClick={() => navigate(getDashboardPath())}
+            onClick={() => navigate({ to: getDashboardPath() })}
           >
             <Home className="h-4 w-4 mr-2" />
             {isAuthenticated ? "Return to Dashboard" : "Return to Home"}
@@ -47,7 +45,7 @@ const NotFound = () => {
           <Button 
             variant="outline" 
             className="w-full" 
-            onClick={() => navigate(-1)}
+            onClick={() => window.history.back()}
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Go Back
