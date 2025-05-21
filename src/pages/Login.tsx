@@ -13,9 +13,23 @@ const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const { login, isLoading } = useAuthStore();
+  const { login, isLoading, user } = useAuthStore();
   const navigate = useNavigate();
   const { toast } = useToast();
+  
+  // If already logged in, navigate to the appropriate dashboard
+  React.useEffect(() => {
+    if (user) {
+      // Only redirect if user is authenticated
+      const redirectPath = user.role === 'admin' 
+        ? '/admin' 
+        : user.role === 'counselor' 
+          ? '/counselor' 
+          : '/approver';
+      
+      navigate(redirectPath);
+    }
+  }, [user, navigate]);
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,6 +41,8 @@ const Login: React.FC = () => {
         title: "Login successful",
         description: "Welcome back!"
       });
+      
+      // After login is successful, the useEffect above will handle redirection
     } catch (err) {
       setError('Invalid email or password. Try with admin@example.com / password');
     }

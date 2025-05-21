@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -16,14 +15,21 @@ const Sidebar: React.FC = () => {
   const location = useLocation();
   const { user } = useAuthStore();
   
-  // Modified isActive to check for exact path match instead of just startsWith
+  // Fixed isActive to correctly match the current path
   const isActive = (path: string) => {
-    if (path.endsWith('/')) {
-      // For root paths like /admin/, /counselor/, /approver/
-      return location.pathname === path || location.pathname === path.slice(0, -1);
+    const currentPath = location.pathname;
+    
+    // Exact match for dashboard routes
+    if (path.endsWith('/') && (currentPath === path || currentPath === path.slice(0, -1))) {
+      return true;
     }
-    // For other paths, check exact match
-    return location.pathname === path;
+    
+    // Exact match for specific routes
+    if (currentPath === path) {
+      return true;
+    }
+    
+    return false;
   };
   
   // Define navigation items based on user role

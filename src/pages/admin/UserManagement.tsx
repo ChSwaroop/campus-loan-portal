@@ -51,7 +51,7 @@ const UserManagement: React.FC = () => {
       await createUser(formData);
       toast({
         title: "User created",
-        description: `User ${formData.name} has been created successfully.`
+        description: `User ${formData.name} has been created successfully. In a production environment, they would receive an email with login instructions.`
       });
       setIsCreateDialogOpen(false);
       resetForm();

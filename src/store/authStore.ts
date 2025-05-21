@@ -47,12 +47,16 @@ export const useAuthStore = create<AuthState>()(
           const user = mockUsers.find(u => u.email === email);
           
           if (user && password === 'password') { // In a real app, you'd verify the password properly
+            // Set user details and immediately update state to trigger UI updates
             set({
               user,
               token: 'mock-jwt-token',
               isAuthenticated: true,
               isLoading: false
             });
+            
+            // Return successfully
+            return;
           } else {
             throw new Error('Invalid credentials');
           }
