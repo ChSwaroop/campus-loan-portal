@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
@@ -7,24 +8,19 @@ const Index: React.FC = () => {
   const { isAuthenticated, user } = useAuthStore();
   const navigate = useNavigate();
 
-  React.useEffect(() => {
-    if (isAuthenticated) {
-      // If user is authenticated but on first login, redirect to password change
-      if (user?.isFirstLogin) {
-        navigate('/change-password');
-        return;
-      }
-      
-      // Otherwise redirect to appropriate dashboard based on role
-      const redirectPath = user?.role === 'admin' 
-        ? '/admin' 
-        : user?.role === 'counselor' 
-          ? '/counselor' 
-          : '/approver';
-      
-      navigate(redirectPath);
+  const getDashboardPath = () => {
+    // Only redirect to password change if user is on first login
+    if (user?.isFirstLogin) {
+      return '/change-password';
     }
-  }, [isAuthenticated, user, navigate]);
+    
+    // Return the appropriate dashboard path based on role
+    return user?.role === 'admin' 
+      ? '/admin' 
+      : user?.role === 'counselor' 
+        ? '/counselor' 
+        : '/approver';
+  };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-blue-50 to-white p-4">
@@ -41,12 +37,25 @@ const Index: React.FC = () => {
           <p className="text-muted-foreground mb-4">
             A comprehensive system for managing educational loans, streamlining the process from application to approval.
           </p>
-          <Button 
-            className="w-full" 
-            onClick={() => navigate('/login')}
-          >
-            Sign In
-          </Button>
+          
+          {isAuthenticated ? (
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">You are logged in as <span className="font-medium">{user?.name}</span></p>
+              <Button 
+                className="w-full" 
+                onClick={() => navigate(getDashboardPath())}
+              >
+                Go to Dashboard
+              </Button>
+            </div>
+          ) : (
+            <Button 
+              className="w-full" 
+              onClick={() => navigate('/login')}
+            >
+              Sign In
+            </Button>
+          )}
         </div>
         
         <div className="grid grid-cols-3 gap-4">
