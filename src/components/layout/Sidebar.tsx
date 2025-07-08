@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Link } from '@tanstack/react-router';
+import { Link, useRouterState } from '@tanstack/react-router';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/store/authStore';
 import { 
@@ -14,6 +14,8 @@ import {
 
 const Sidebar: React.FC = () => {
   const { user } = useAuthStore();
+  const routerState = useRouterState();
+  const currentPath = routerState.location.pathname;
   
   // Define navigation items based on user role
   const getNavItems = () => {
@@ -43,6 +45,13 @@ const Sidebar: React.FC = () => {
   
   const navItems = getNavItems();
   
+  const isActive = (path: string) => {
+    if (path === '/admin' || path === '/counselor' || path === '/approver') {
+      return currentPath === path;
+    }
+    return currentPath === path;
+  };
+  
   return (
     <div className="hidden md:flex md:w-64 md:flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border">
       <div className="flex flex-col flex-1">
@@ -55,14 +64,11 @@ const Sidebar: React.FC = () => {
             <Link
               key={item.path}
               to={item.path}
-              activeProps={{
-                className: "bg-sidebar-primary text-sidebar-primary-foreground"
-              }}
-              inactiveProps={{
-                className: "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-              }}
               className={cn(
-                "flex items-center px-3 py-2 text-sm rounded-md group transition-colors"
+                "flex items-center px-3 py-2 text-sm rounded-md group transition-colors",
+                isActive(item.path)
+                  ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                  : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
               )}
             >
               <span className="mr-3">{item.icon}</span>

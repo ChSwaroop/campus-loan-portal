@@ -1,6 +1,7 @@
 
 import { createRouteTree } from '@tanstack/react-router'
-import { Route as rootRoute } from './routes'
+import { Route as rootRoute } from './routes/__root'
+import { Route as IndexRoute } from './routes/index'
 import { Route as LoginRoute } from './routes/login'
 import { Route as ChangePasswordRoute } from './routes/change-password'
 import { Route as NotFoundRoute } from './routes/_not-found'
@@ -23,8 +24,9 @@ import { Route as ApproverReviewRoute } from './routes/approver/review.$id'
 
 // Create and export the route tree
 export const routeTree = createRouteTree({
+  ...rootRoute,
   children: [
-    rootRoute,
+    IndexRoute,
     LoginRoute,
     ChangePasswordRoute,
     NotFoundRoute,

@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@tanstack/react-router';
 import { useAuthStore } from '@/store/authStore';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -20,14 +20,15 @@ const Login: React.FC = () => {
   // If already logged in, navigate to the appropriate dashboard
   React.useEffect(() => {
     if (user) {
-      // Only redirect if user is authenticated
-      const redirectPath = user.role === 'admin' 
-        ? '/admin' 
-        : user.role === 'counselor' 
-          ? '/counselor' 
-          : '/approver';
+      const redirectPath = user.isFirstLogin 
+        ? '/change-password'
+        : user.role === 'admin' 
+          ? '/admin' 
+          : user.role === 'counselor' 
+            ? '/counselor' 
+            : '/approver';
       
-      navigate(redirectPath);
+      navigate({ to: redirectPath });
     }
   }, [user, navigate]);
   
@@ -42,7 +43,7 @@ const Login: React.FC = () => {
         description: "Welcome back!"
       });
       
-      // After login is successful, the useEffect above will handle redirection
+      // After login, the useEffect will handle redirection
     } catch (err) {
       setError('Invalid email or password. Try with admin@example.com / password');
     }

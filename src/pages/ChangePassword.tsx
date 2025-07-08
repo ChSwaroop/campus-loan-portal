@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@tanstack/react-router';
 import { useAuthStore } from '@/store/authStore';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -26,7 +26,7 @@ const ChangePassword: React.FC = () => {
         : user.role === 'counselor' 
           ? '/counselor' 
           : '/approver';
-      navigate(redirectPath, { replace: true });
+      navigate({ to: redirectPath });
     }
   }, [user, navigate]);
   
@@ -58,7 +58,7 @@ const ChangePassword: React.FC = () => {
         : user?.role === 'counselor' 
           ? '/counselor' 
           : '/approver';
-      navigate(redirectPath, { replace: true });
+      navigate({ to: redirectPath });
     } catch (err) {
       setError('Failed to change password. Please try again.');
     }

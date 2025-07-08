@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@tanstack/react-router';
 import { useAuthStore } from '@/store/authStore';
 import { Button } from '@/components/ui/button';
 
@@ -20,6 +20,10 @@ const Index: React.FC = () => {
       : user?.role === 'counselor' 
         ? '/counselor' 
         : '/approver';
+  };
+
+  const handleNavigation = (path: string) => {
+    navigate({ to: path });
   };
 
   return (
@@ -43,7 +47,7 @@ const Index: React.FC = () => {
               <p className="text-sm text-muted-foreground">You are logged in as <span className="font-medium">{user?.name}</span></p>
               <Button 
                 className="w-full" 
-                onClick={() => navigate(getDashboardPath())}
+                onClick={() => handleNavigation(getDashboardPath())}
               >
                 Go to Dashboard
               </Button>
@@ -51,7 +55,7 @@ const Index: React.FC = () => {
           ) : (
             <Button 
               className="w-full" 
-              onClick={() => navigate('/login')}
+              onClick={() => handleNavigation('/login')}
             >
               Sign In
             </Button>
